@@ -1,0 +1,14 @@
+---
+- hosts: vm-k8s-1
+  tasks:
+    - name: Create a local .kube directory
+      file:
+        path: ~/.kube
+        state: directory
+        mode: 0700
+
+    - name: Copy .kube/config from vm-k8s-1
+      fetch:
+        src: ~/.kube/config
+        dest: ~/.kube/cluster-k8s-vagrant
+        flat: yes

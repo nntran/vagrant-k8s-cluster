@@ -1,0 +1,51 @@
+---
+# Pull all images for offline install
+- name: Pull all images for offline install
+  command: kubeadm config images pull
+
+# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
+- name: Init the cluster with kubeadm
+  shell: |
+    kubeadm init --control-plane-endpoint={{ ansible_host }}:6443  --pod-network-cidr={{ cni_cdir_extra[cni] }} --upload-certs --ignore-preflight-errors=Mem
+  register: init_cmd_out
+  notify: kubelet status
+
+- debug: var=init_cmd_out
+
+- name: Set init command fact
+  set_fact:
+    init_cmd: "{{ init_cmd_out.stdout }}"
+
+- name: Ensure the .kube dir exists for root
+  file:
+    path: /root/.kube
+    state: directory
+    owner: root
+    group: root
+
+- name: Copy in the kubernetes config to the root user
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /root/.kube/config
+    remote_src: yes
+    owner: root
+    group: root
+
+- name: Ensure the .kube dir exists for the ansible ssh user
+  file:
+    path: /home/{{ ansible_ssh_user }}/.kube
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+
+- name: Copy in the kubernetes config to the ansible ssh user
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/{{ ansible_ssh_user }}/.kube/config
+    remote_src: yes
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+
+- name: Install {{ cni }} CNI
+  include_tasks: "cni/{{ cni }}.yml"
+  when: cni is defined and cni != ''

@@ -1,0 +1,49 @@
+---
+- name: Install Kubernetes
+  include_tasks: install.yml
+  tags:
+    - install
+    - upgrade
+
+- name: Discover node status
+  include_tasks: discover.yml
+  tags:
+    - install
+
+- debug: var=cluster
+- debug: var=node_ip
+
+- name: Create the cluster
+  include_tasks: setup.yml
+  when: node == "master" and cluster != "initialized"
+  tags:
+    - install
+    - setup
+
+- debug: var=cluster
+
+- name: Generate short-lived join token
+  include_tasks: token.yml
+  when: node == "master"
+  tags:
+    - install
+    - token
+
+- name: Join the cluster as worker
+  include_tasks: join.yml
+  when: node == "worker" and cluster != "joined"
+  tags:
+    - install
+    - join
+
+- name: Discover node status again once everyone has joined
+  include_tasks: discover.yml
+  tags:
+    - install
+
+- name: Show cluster status
+  include_tasks: status.yml
+  when: node == "master"
+  tags:
+    - install
+    - status

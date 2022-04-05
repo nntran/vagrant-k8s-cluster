@@ -1,0 +1,22 @@
+---
+- hosts: all
+  roles:
+    - common
+  tags:
+    - common
+
+- hosts: master, worker
+  roles:
+    - role: docker
+      vars:
+        version: "20.10.13"
+  tags:
+    - docker
+
+- hosts: master, worker
+  roles:
+    - role: kubernetes
+      vars:
+        version: "1.23.5"
+  tags:
+    - kubernetes

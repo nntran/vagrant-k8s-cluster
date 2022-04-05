@@ -1,0 +1,13 @@
+---
+# Generate kube join command for joining the node to the Kubernetes cluster and store the command in the file named join-command
+# Generate join command for worker
+- name: Generating token for worker to join the cluster
+  shell: kubeadm token create --print-join-command --ttl 1h
+  register: join_cmd_worker
+
+- name: Display join command as worker
+  debug: var=join_cmd_worker.stdout
+
+- name: Set the join command for worker
+  set_fact:
+    worker_join_cmd: "{{ join_cmd_worker.stdout }}"

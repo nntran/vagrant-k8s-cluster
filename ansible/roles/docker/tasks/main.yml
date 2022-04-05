@@ -1,0 +1,23 @@
+---
+- name: Install docker {{ version }}
+  include_tasks: install.yml
+  tags:
+    - install
+
+# Copy the daemon.json from local to remote
+- name: Create daemon.json config file
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: 0644
+  notify:
+    - docker status
+  register: cmdline_modified
+  tags:
+    - install
+
+- name: Reboot host
+  reboot:
+  when: cmdline_modified.changed
+  tags:
+    - install

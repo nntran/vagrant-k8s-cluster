@@ -1,0 +1,14 @@
+---
+- name: Update apt repos
+  apt:
+    update_cache: yes
+  tags:
+    - update-repos
+
+- name: Install common packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+    install-recommends: no
+  tags:
+    - update-repos

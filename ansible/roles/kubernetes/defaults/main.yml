@@ -1,0 +1,17 @@
+---
+# Kubernetes version
+# apt-cache madison kubelet
+version: "1.23.5"
+
+# Pode network cdir
+cidr: "172.20.0.0/16"
+
+# CNI
+cni: "weave"
+cni_cdir_extra:
+  flannel: "{{ cidr }}"
+  weave: "{{ cidr }}"
+
+# Others flags
+reset: false
+cluster: ""

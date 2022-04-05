@@ -1,0 +1,13 @@
+---
+- hosts: all
+  tasks:
+    - name: Wait for automatic system updates
+      shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+
+    - name: Upgrade the OS
+      apt:
+        upgrade: dist #yes
+        update_cache: yes
+        cache_valid_time: 0
+        # Pass options to dpkg on run
+        dpkg_options: "force-confold,force-confdef"
